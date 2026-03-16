@@ -22,10 +22,8 @@ title: Khabib Shakhbanov
 author: Khabib Shakhbanov
 email: kh4bibb@yandex.ru
 description: >- # this means to ignore newlines until "baseurl:"
-  Hi, I'm Khabib Shakhbanov – a competitive programmer and open-source enthusiast from Russia.
+  Hi, I'm Khabib Shakhbanov - a competitive programmer and cs enthusiast.
   I'm passionate about the intersection of Python, backend development, and mathematics.
-  On this site, you'll find my projects, code breakdowns, and the occasional insight. 
-  Come along as I build, break down, and share what I learn!
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://khabib73.github.io/blog" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  khabib73
@@ -34,7 +32,9 @@ github_username:  khabib73
 theme: minima
 plugins:
   - jekyll-feed
-
+minima:
+  skin: dark
+  
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
