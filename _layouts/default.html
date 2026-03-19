@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+
+  {%- include head.html -%}
+
+  <body>
+
+    {%- include header.html -%}
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <!-- Search input -->
+        <div id="search-container" style="margin-bottom: 20px;">
+          <input type="text" id="search-input" placeholder="Search posts..." style="width: 100%; padding: 8px; font-size: 16px;">
+          <ul id="results-container"></ul>
+        </div>
+        {{ content }}
+      </div>
+    </main>
+
+    {%- include footer.html -%}
+
+    <!-- Simple Jekyll Search -->
+    <script src="{{ '/assets/js/simple-jekyll-search.min.js' | relative_url }}"></script>
+    <script>
+      SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '{{ "/search.json" | relative_url }}',
+        searchResultTemplate: '<li><a href="{url}">{title}</a> - {date}</li>',
+        noResultsText: 'No results found',
+        limit: 10,
+        fuzzy: false
+      });
+    </script>
+
+  </body>
+
+</html>
