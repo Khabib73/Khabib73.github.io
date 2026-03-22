@@ -23,9 +23,11 @@ author: Khabib Shakhbanov
 email: kh4bibb@yandex.ru
 description: >- # this means to ignore newlines until "baseurl:"
   Hi, I'm Khabib Shakhbanov - a competitive programmer and cs enthusiast.
-  I'm passionate about the intersection of Python, backend development, and mathematics.
+  I'm passionate aboutß the intersection of Python, backend development, and mathematics.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://khabib73.github.io/blog" # the base hostname & protocol for your site, e.g. http://example.com
+home_info_me:
+  Привет! Меня зовут Хабиб, я являюсь независимым разработчиком!
 github_username:  khabib73
 
 # Build settings
