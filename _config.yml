@@ -18,12 +18,11 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Khabib Shakhbanov
+title: Khabib73
 author: Khabib Shakhbanov
 email: kh4bibb@yandex.ru
 description: >- # this means to ignore newlines until "baseurl:"
-  Hi, I'm Khabib Shakhbanov - a competitive programmer and cs enthusiast.
-  I'm passionate aboutß the intersection of Python, backend development, and mathematics.
+ competitive programmer and cs enthusiast.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://khabib73.github.io/blog" # the base hostname & protocol for your site, e.g. http://example.com
 home_info_me:
