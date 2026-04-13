@@ -1,0 +1,246 @@
+---
+layout: post
+title:  "YATL — тестирование API по-новому"
+date:   2026-04-13 16:34 +0300
+categories: programming
+---
+
+Сегодня я хочу поделиться свежим взглядом на автоматизацию тестирования API. Я считаю, что написание интеграционных тестов для современных API стало излишне громоздким. Даже при использовании простых инструментов мы тонем в шаблонном коде: настройка сессий, обработка исключений, сериализация/десериализация. Моя идея — превратить тесты в чистые данные, сделав их декларативными и понятными любому члену команды.
+
+Если вы когда-либо занимались тестированием API (особенно в микросервисной архитектуре), то наверняка сталкивались с этим знакомым списком проблем:
+
+1. **Нужно писать код** — даже для простейшего GET-запроса приходится импортировать библиотеки, настраивать клиент, ловить таймауты.
+
+2. **Высокий порог входа** — чтобы написать тест, нужно знать Python (Java, Go, JS) на уровне, достаточном для отладки асинхронных вызовов и работы с JSON-схемами.
+
+3. **Сложные зависимости** — когда один запрос использует данные из ответа другого (например, POST /login → token, затем GET /users/me), код превращается в клубок колбэков или async/await.
+
+4. **Трудно поддерживать** — через пару месяцев тестовые сценарии становятся «лапшой», которую боятся трогать даже авторы.
+
+И самое главное: **не все в команде — разработчики**. QA-инженеры, аналитики, техписы, а иногда и продакт-менеджеры хотят проверить API, но не хотят (и не должны) учить все тонкости императивного программирования.
+
+## Знакомьтесь: YATL (Yet Another Testing Language)
+
+YATL — это DSL (*domain-specific language*), написанный на Python, для тестирования API. Он использует YAML в качестве языка описания тестов. Но это не очередной фреймворк для разработчиков, а инструмент, который демократизирует API-тестирование, делая его доступным для всей команды.
+
+> Если вы знаете HTTP и YAML — вы знаете YATL.
+
+Вместо написания императивного кода вы декларативно описываете тесты в YAML-файлах. Давайте сразу посмотрим, как выглядит простейший тест на проверку GET-запроса:
+
+```yaml
+name: ping
+base_url: google.com
+
+steps:
+- name: access_test
+  request:
+    method: GET
+  expect:
+    status: 200
+
+- name: failed_test
+  request:
+    method: GET
+    url: /not_found
+  expect:
+    status: 404
+```
+Никакой скрытой «магии»: только запрос (метод, URL) и ожидаемый ответ (статус, частичная проверка тела). Это гораздо ближе к спецификации, чем к скрипту. Каждый файл с расширением .test.yaml — это тестовый сценарий, состоящий из нескольких шагов (steps).
+
+А вот как этот тест выглядел бы на Java:
+
+```java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.io.IOException;
+
+public class HttpTest {
+
+    public static void main(String[] args) {
+        try {
+            test();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void test() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://google.com"))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assert response.statusCode() == 200 : "Expected 200, got " + response.statusCode();
+
+        HttpRequest notFoundRequest = HttpRequest.newBuilder()
+                .uri(URI.create("https://google.com/not_found"))
+                .GET()
+                .build();
+
+        HttpResponse<String> notFoundResponse = client.send(notFoundRequest, HttpResponse.BodyHandlers.ofString());
+        assert notFoundResponse.statusCode() == 404 : "Expected 404, got " + notFoundResponse.statusCode();
+
+        System.out.println("All tests passed.");
+    }
+}
+```
+Согласитесь, что второй вариант выглядит более дружелюбно и требует значительно меньше подготовительных действий.
+
+### Ключевые возможности
+
+Теперь перейдем к ключевым возможностям и особенностям проекта:
+
+#### Поддержка всех форматов данных
+
+YATL из коробки понимает большинство content-type, с которыми вы столкнётесь в реальной жизни:
+
+- **JSON** — автоматически устанавливает Content-Type: application/json
+
+- **XML** — для SOAP и других XML-API
+
+- **Form-данные** — application/x-www-form-urlencoded
+
+- **Multipart-файлы** — загрузка файлов
+
+- **Простой текст** — text/plain
+
+Пример с JSON:
+
+```yaml
+request:
+  method: POST
+  url: /users
+  body:
+    json:
+      name: "Иван Иванов"
+      email: "ivan@example.com"
+```
+
+#### Извлечение данных и шаблонизация
+
+Вы можете извлекать любые фрагменты из ответов и использовать их в последующих запросах через мощные Jinja2-шаблоны. Для доступа к вложенным полям JSON используется точечная нотация (например, user.info.name), что делает синтаксис чистым и кратким: Представьте цепочку:
+
+```yaml
+steps:
+  - name: создание_пользователя
+    request:
+      method: POST
+      url: /users
+      body:
+        json:
+          name: "Алиса"
+    expect:
+      status: 200
+    extract:
+      user_id: "response.id"  # Извлекаем ID из ответа
+
+  - name: получение_пользователя
+    request:
+      method: GET
+      url: /users/{{ user_id }}  # Используем извлеченный ID
+    expect:
+      status: 200
+      json:
+        user.info.name: "Алиса" # проверка имени, через точечную нотацию
+```
+
+#### Параллельное выполнение 
+
+YATL по умолчанию запускает тесты в 10 потоках (значение можно настроить через `--workers`). Это кардинально ускоряет прогон больших наборов тестов, например, для регресса. 
+
+#### Пропуск тестов и шагов
+
+В реальной разработке часто нужно временно отключить тест, не удаляя его. YATL поддерживает механизм skip:
+
+```yaml
+name: Тест в разработке
+skip: true  # Весь тест будет пропущен
+```
+
+Можно пропустить и отдельный шаг:
+
+```yaml
+steps:
+  - name: активный_шаг
+    request: ...
+
+  - name: пропущенный_шаг
+    skip: true  # Только этот шаг пропускается
+    request: ...
+```
+
+#### Валидация данных
+
+```yaml
+name: Пример расширенной проверки
+steps:
+  - name: получение данных пользователя
+    request:
+      method: GET
+      url: /api/users/123
+    expect:
+      status: 200 
+      validate:
+        - compare: { path: "user.age", gt: 18 }         
+        - compare: { path: "user.name", min_length: 3 }     
+        - compare: { path: "user.email", regex: ".+@.+\\..+" } 
+        - compare: { path: "items", type: "array", not_empty: true } 
+```
+
+#### Интеграция с CI/CD 
+
+```yaml
+name: API Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      - run: pip install yatl
+      - run: yatl tests/ --workers 5
+```
+
+### Чего пока нет, но будет в релизе
+
+**Lifecycle-хуки before / after (ваше предложение!)**. Это позволит автоматически поднимать и останавливать сервисы прямо из тестового сценария. Пример того, как это будет выглядеть: 
+
+```yaml
+name: My API tests
+base_url: http://localhost:3000
+before:
+  command: "docker-compose up -d"
+  wait_for: "http://localhost:3000/health"   # опциональная проверка готовности
+after:
+  command: "docker-compose down"
+steps:
+  - name: test endpoint
+    request:
+      method: GET
+      url: /api
+```
+
+Использовать библиотеку пока нельзя (она ещё не опубликована в PyPI), но поставить проекту звёздочку на GitHub и добавить в закладки можно уже сегодня: [https://github.com/Khabib73/YATL](https://github.com/Khabib73/YATL)
+
+Это лучший способ сказать «спасибо» и помочь нам сделать релиз быстрее. Мы планируем выложить первую стабильную версию через 3–4 недели.
+
+## Почему это не очередной велосипед?
+
+Да, существуют Postman, Insomnia, Swagger UI, REST-assured, pytest + requests. Но у каждого из этих инструментов есть своя «ахиллесова пята»:
+
+- Postman — хорош для ручного запуска, но его коллекции плохо версионировать и сложно встраивать в CI (Newman — это ещё одна прослойка).
+
+- pytest + requests — требует написания кода, а при росте числа тестов страдает поддерживаемость.
+
+- Karate (Java DSL) — мощный, но всё равно требует знания Java-экосистемы.
+
+**YATL** же предлагает **универсальный язык описания тестов**, который понятен **всем** в команде. Аналитик может добавить проверку нового эндпоинта, не дёргая разработчика. QA-инженер — переиспользовать переменные и схемы. А разработчик — быстро отладить падающий тест, просто взглянув на YAML.
