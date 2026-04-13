@@ -142,8 +142,7 @@ steps:
   - name: получение_пользователя
     request:
       method: GET
-      url: /users/{{ user_id }}  # Используем извлеченный ID
-    expect:
+      url: {% raw %}/users/{{ user_id }}{% endraw %}   # Используем извлеченный ID     
       status: 200
       json:
         user.info.name: "Алиса" # проверка имени, через точечную нотацию
