@@ -12,4 +12,4 @@ permalink: /about/
 
 Этот сайт — мой личный блог, где я делюсь мыслями и опытом.
 
-Вы можете связаться со мной в [Telegram](https://t.me/stereotuple).
+Вы можете связаться со мной в [Telegram](https://t.me/kh73bb).

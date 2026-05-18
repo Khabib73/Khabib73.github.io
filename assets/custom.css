@@ -1,0 +1,95 @@
+/* Custom fonts for Khabib73.github.io */
+
+/* Base font for body with fallback for Russian text */
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    font-weight: 400;
+    color: #333;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* Main heading */
+h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+
+/* Navigation and header */
+.site-header, .site-nav, .site-title, .site-nav .page-link {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 500;
+}
+
+/* Code blocks */
+code, pre, .highlight {
+    font-family: 'Courier New', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9em;
+}
+
+/* Links */
+a {
+    font-family: inherit;
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Post titles */
+.post-title, .post-link {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+}
+
+/* Post content */
+.post-content {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.1rem;
+}
+
+/* Footer */
+.site-footer {
+    font-family: "Montserrat";
+    font-weight: 300;
+    font-size: 0.9rem;
+}
+
+/* Lists */
+ul, ol {
+    font-family: inherit;
+}
+
+/* Blockquotes */
+blockquote {
+    font-family: 'Roboto', Georgia, 'Times New Roman', Times, serif;
+    font-style: italic;
+    border-left: 4px solid #ddd;
+    padding-left: 1em;
+    margin-left: 0;
+}
+
+/* Tables */
+table {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    h1 {
+        font-size: 2rem;
+    }
+}
