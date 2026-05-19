@@ -31,7 +31,7 @@ h1 {
 
 /* Code blocks */
 code, pre, .highlight {
-    font-family: 'Courier New', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family: 'JetBrains Mono', 'Courier New', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 0.9em;
 }
 
